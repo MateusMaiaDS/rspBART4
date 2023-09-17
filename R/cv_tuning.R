@@ -29,10 +29,10 @@ y_train <- train %>% dplyr::pull("y")
 
 # Running the model
 spBART <- rspBART(x_train = x_train,
-        x_test = x_test,y_train = y_train,
-        n_mcmc = 2000,node_min_size = 5,
-        n_burn = 0,nIknots = 2,n_tree = 200,
-        dif_order = 0,motrbart_bool = FALSE)
+                  x_test = x_test,y_train = y_train,
+                  n_mcmc = 2000,node_min_size = 5,
+                  n_burn = 0,nIknots = 2,n_tree = 200,
+                  dif_order = 0,motrbart_bool = FALSE)
 
 bartmod <- dbarts::bart(x.train = x_train,y.train = y_train,x.test = x_test)
 softbartmod <- SoftBart::softbart(X = x_train,Y = y_train,X_test =  x_test)
@@ -74,12 +74,12 @@ p_counter <- numeric(ncol(x_train))
 for(i in 501:spBART$mcmc$n_mcmc){
 
   for(t in 1:spBART$prior$n_tree){
-      curr_tree <- spBART$mcmc$all_trees[[i]][[t]]
-      terminals <- get_terminals(curr_tree)
-      for(ell in 1:length(terminals)){
-        p_counter[unique(curr_tree[[terminals[ell]]]$ancestors)] <- p_counter[unique(curr_tree[[terminals[ell]]]$ancestors)] + 1
-      }
+    curr_tree <- spBART$mcmc$all_trees[[i]][[t]]
+    terminals <- get_terminals(curr_tree)
+    for(ell in 1:length(terminals)){
+      p_counter[unique(curr_tree[[terminals[ell]]]$ancestors)] <- p_counter[unique(curr_tree[[terminals[ell]]]$ancestors)] + 1
     }
+  }
 }
 
 round(p_counter/sum(p_counter),digits = 5)

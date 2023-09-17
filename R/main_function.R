@@ -368,9 +368,9 @@ rspBART <- function(x_train,
                                  data = data)
 
       # Updating the intercept
-      forest[[t]] <- updateGamma(tree = forest[[t]],
-                                 curr_part_res = partial_residuals,
-                                 data = data)
+      # forest[[t]] <- updateGamma(tree = forest[[t]],
+      #                            curr_part_res = partial_residuals,
+      #                            data = data)
 
 
 
@@ -390,16 +390,16 @@ rspBART <- function(x_train,
 
 
     # Seeing the results for the unidimensional cases.
-    plot(x_train_scale,y_scale)
-    for(plot_i in 1:n_tree){
-      points(x_train_scale,trees_fit[plot_i,],pch=20,col = ggplot2::alpha(plot_i,0.2))
-    }
-    points(x_train_scale,y_hat,col = "blue",pch=20)
+    # plot(x_train_scale,y_scale)
+    # for(plot_i in 1:n_tree){
+    #   points(x_train_scale,trees_fit[plot_i,],pch=20,col = ggplot2::alpha(plot_i,0.2))
+    # }
+    # points(x_train_scale,y_hat,col = "blue",pch=20)
 
 
 
     # Updating all other parameters
-    # data$tau_beta <- update_tau_betas(forest = forest,data = data)
+    data$tau_beta <- update_tau_betas(forest = forest,data = data)
     # data$tau_gamma <- update_tau_gamma(forest = forest,data = data)
 
     # Updating delta
@@ -446,11 +446,13 @@ rspBART <- function(x_train,
 
   # Returning to the original scale
   if(scale_bool){
+
+    all_tau_norm <- all_tau/((max_y-min_y)^2)
+    all_tau_beta_norm <- all_tau_beta/((max_y-min_y)^2)
+    all_tau_gamma_norm <- all_tau_gamma/((max_y-min_y)^2)
+
       for(post_iter in 1:n_mcmc){
 
-        all_tau_norm[post_iter] <- all_tau[post_iter]/(diff(range(y_train))^2)
-        all_tau_beta_norm[post_iter] <- all_tau_beta[post_iter]/(diff(range(y_train))^2)
-        all_tau_gamma_norm[post_iter] <- all_tau_gamma[post_iter]/(diff(range(y_train))^2)
         for(tree_number in 1:n_tree){
             all_trees_fit_norm[[post_iter]][[tree_number]] <- unnormalize_bart(z = all_trees_fit[[post_iter]][[tree_number]],a = min_y,b = max_y)
         }
@@ -493,8 +495,8 @@ rspBART <- function(x_train,
   # plot(all_tau_beta, type = "l")
   # plot(all_tau_gamma,type = "l")
   # plot(all_delta, type = "l")
-  plot(x_train_scale,y_scale)
-  points(x_train_scale,colMeans(all_y_hat[1501:2000,]),pch= 20, col = "blue")
+  # plot(x_train_scale,y_scale)
+  # points(x_train_scale,colMeans(all_y_hat[1501:2000,]),pch= 20, col = "blue")
   # # ============================================
   #
   # curr <- 0
