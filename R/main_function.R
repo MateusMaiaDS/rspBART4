@@ -4,7 +4,7 @@ source("R/other_functions.R")
 source("R/sim_functions.R")
 # source("R/debugging_rspBART.R")
 source("R/tree_functions.R")
-set.seed(42)
+# set.seed(42)
 
 # Creating the main function from the rspBART
 rspBART <- function(x_train,
@@ -148,7 +148,7 @@ rspBART <- function(x_train,
       B_train_obj <- splines::bs(x = x_train_scale[,dummy_x$continuousVars[i], drop = FALSE],
                                  df = nIknots+3,
                                  degree = 3,intercept = FALSE,
-                                 Boundary.knots = c(-1.2,1.2)*range(x_train_scale[,dummy_x$continuousVars[i]]),warn.outside = TRUE)
+                                 Boundary.knots = c(-2,2)*range(x_train_scale[,dummy_x$continuousVars[i]]),warn.outside = TRUE)
     } else {
       B_train_obj <- splines::spline.des(x = x_train_scale[,dummy_x$continuousVars[i], drop = FALSE],
                                          knots = new_knots[,dummy_x$continuousVars[i]],
@@ -584,7 +584,8 @@ rspBART <- function(x_train,
                           y_train = y_train,
                           D_train = D_train,
                           x_test = x_test,
-                          D_test = D_test)))
+                          D_test = D_test,
+                          basis_subindex = basis_subindex)))
 
 }
 

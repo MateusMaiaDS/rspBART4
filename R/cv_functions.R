@@ -1,6 +1,10 @@
 all_bart <- function(cv_element,
-                     nIknots_){
+                     nIknots_,
+                     ntree_,
+                     seed_){
 
+  # To replicate the results
+  set.seed(seed_)
   train <- cv_element$train
   test <- cv_element$test
 
@@ -13,7 +17,7 @@ all_bart <- function(cv_element,
   spBART <- rspBART(x_train = x_train,
                     x_test = x_test,y_train = y_train,
                     n_mcmc = 2500,node_min_size = 5,
-                    n_burn = 0,nIknots = nIknots_,n_tree = 50,
+                    n_burn = 0,nIknots = nIknots_,n_tree = ntree_,
                     use_bs = TRUE,
                     dif_order = 0,motrbart_bool = FALSE)
 

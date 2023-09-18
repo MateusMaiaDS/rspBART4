@@ -31,7 +31,7 @@ y_train <- train %>% dplyr::pull("y")
 spBART <- rspBART(x_train = x_train,
         x_test = x_test,y_train = y_train,
         n_mcmc = 2000,node_min_size = 5,
-        n_burn = 0,nIknots = 2,n_tree = 200,
+        n_burn = 0,nIknots = 2,n_tree = 10,
         dif_order = 0,motrbart_bool = FALSE)
 
 bartmod <- dbarts::bart(x.train = x_train,y.train = y_train,x.test = x_test)
