@@ -34,3 +34,4 @@ delta <- 1
 nIknots = 5
 dif_order = 0
 motrbart_bool <- FALSE
+use_bs <- TRUE

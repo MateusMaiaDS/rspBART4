@@ -1,5 +1,5 @@
 # This file is to compare first trial of predictive performance of spBART and BART
-# rm(list=ls())
+rm(list=ls())
 library(dbarts)
 library(mlbench)
 library(purrr)
@@ -57,7 +57,10 @@ stopCluster(cl)
 
 # Plotting a raw boxplot
 library(ggplot2)
+source("R/cv_functions.R")
 comparison_df <- wrapping_comparison(result_ = result)
-comparison_df%>% dplyr::filter(metric == "crps_test") %>%
+comparison_df%>% dplyr::filter(metric == "rmse_test") %>%
   ggplot()+
   geom_boxplot(mapping = aes(x = model, y = value))
+
+var_importance_counter(result_ = result,rep_ = 2)

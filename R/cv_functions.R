@@ -14,6 +14,7 @@ all_bart <- function(cv_element,
                     x_test = x_test,y_train = y_train,
                     n_mcmc = 2500,node_min_size = 5,
                     n_burn = 0,nIknots = nIknots_,n_tree = 50,
+                    use_bs = TRUE,
                     dif_order = 0,motrbart_bool = FALSE)
 
   bartmod <- dbarts::bart(x.train = x_train,y.train = y_train,x.test = x_test)
