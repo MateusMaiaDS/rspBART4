@@ -71,10 +71,10 @@ rspBART <- function(x_train,
 
 
   # Normalising all the columns
-  for(i in 1:ncol(x_train)){
-    x_train_scale[,i] <- normalize_covariates_bart(y = x_train_scale[,i],a = x_min[i], b = x_max[i])
-    x_test_scale[,i] <- normalize_covariates_bart(y = x_test_scale[,i],a = x_min[i], b = x_max[i])
-  }
+  # for(i in 1:ncol(x_train)){
+  #   x_train_scale[,i] <- normalize_covariates_bart(y = x_train_scale[,i],a = x_min[i], b = x_max[i])
+  #   x_test_scale[,i] <- normalize_covariates_bart(y = x_test_scale[,i],a = x_min[i], b = x_max[i])
+  # }
 
 
 
@@ -98,47 +98,46 @@ rspBART <- function(x_train,
   # Getting the Splines Basis functions
   # =========================================================================================================
 
-  knots <- apply(x_train_scale,
-                 2,
-                 function(x){seq(min(x),max(x),length.out = nIknots)})
-
-
-  D_train <- matrix(NA,
-                       nrow = nrow(x_train_scale),
-                       ncol = (nrow(knots)+3)*length(dummy_x$continuousVars))
-
-  D_test <- matrix(NA,
-                    nrow = nrow(x_test_scale),
-                    ncol = (nrow(knots)+3)*length(dummy_x$continuousVars))
-
   # Setting new parameters for the spline
   ndx <- nIknots
   dx <- 1/ndx
+  ord_ <- 4
+
   # New_knots
   new_knots <- matrix()
-  new_knots <- matrix(mapply(x_min,x_max, FUN = function(MIN,MAX){seq(from = 0-3*dx, to = 1+3*dx, by = dx)}), ncol = length(dummy_x$continuousVars)) # MIN and MAX are 0 and 1 respectively, because of the scale
+  new_knots <- matrix(mapply(x_min,x_max, FUN = function(MIN,MAX){seq(from = MIN-ord_*dx, to = MAX+ord_*dx, by = dx)}), ncol = length(dummy_x$continuousVars)) # MIN and MAX are 0 and 1 respectively, because of the scale
   colnames(new_knots) <- dummy_x$continuousVars
 
-  basis_size <- (nrow(knots)+3) # Change this value to the desired size of each sublist
+  # Following the same setting for the eilers
+  D_train <- matrix(NA,
+                    nrow = nrow(x_train_scale),
+                    ncol = (nIknots+ord_)*length(dummy_x$continuousVars))
+
+  D_test <- matrix(NA,
+                   nrow = nrow(x_test_scale),
+                   ncol = (nIknots+ord_)*length(dummy_x$continuousVars))
+
+
+  basis_size <- (nIknots+ord_) # Change this value to the desired size of each sublist
   D_seq <- 1:ncol(D_train)  # Replace this with the columns of D
 
   # Creating a vector
-  basis_subindex <- split(D_seq, rep(1:(length(D_seq) %/% basis_size), each = basis_size, length.out = length(D_seq)))
+  basis_subindex <- split(D_seq, rep(1:((length(D_seq) %/% basis_size)), each = basis_size, length.out = length(D_seq)))
 
   # Creating the natural B-spline for each predictor
   for(i in 1:length(basis_subindex)){
     B_train_obj <- splines::spline.des(x = x_train_scale[,dummy_x$continuousVars[i], drop = FALSE],
                                        knots = new_knots[,dummy_x$continuousVars[i]],
-                                       ord = 4,
+                                       ord = ord_,
                                        derivs = 0*x_train_scale[,dummy_x$continuousVars[i], drop = FALSE],outer.ok = FALSE)$design
     # Returning to MOTR-BART
     D_train[,basis_subindex[[i]]] <- B_train_obj
 
 
     D_test[,basis_subindex[[i]]] <- splines::spline.des(x = x_test_scale[,dummy_x$continuousVars[i], drop = FALSE],
-                                           knots = new_knots[,dummy_x$continuousVars[i]],
-                                           ord = 4,
-                                           derivs = 0*x_test_scale[,dummy_x$continuousVars[i], drop = FALSE],outer.ok = TRUE)$design
+                                                        knots = new_knots[,dummy_x$continuousVars[i]],
+                                                        ord = ord_,
+                                                        derivs = 0*x_test_scale[,dummy_x$continuousVars[i], drop = FALSE],outer.ok = TRUE)$design
   }
 
   if(motrbart_bool){
@@ -150,8 +149,6 @@ rspBART <- function(x_train,
 
     # Creating a vector
     basis_subindex <- split(D_seq, rep(1:(length(D_seq) %/% basis_size), each = basis_size, length.out = length(D_seq)))
-
-
   }
 
   # R-th difference order matrix
@@ -258,7 +255,7 @@ rspBART <- function(x_train,
       names(right_test_list) <- "right_test"
 
       node_index <- append(left_train_list, right_train_list) |>
-                    append(left_test_list) |> append(right_test_list)
+        append(left_test_list) |> append(right_test_list)
 
       all_cut_points[[j]]$left_train <-  which(x_train_scale[,i] < xcut_m[j,i])
       all_cut_points[[j]]$right_train <-  which(x_train_scale[,i] >= xcut_m[j,i])
@@ -327,12 +324,12 @@ rspBART <- function(x_train,
 
     for(t in 1:data$n_tree){
 
-        # Calculating the partial residuals
-        if(n_tree>1){
-          partial_residuals <- y_scale-colSums(trees_fit[-t,,drop = FALSE])
-        } else {
-          partial_residuals <- y_scale
-        }
+      # Calculating the partial residuals
+      if(n_tree>1){
+        partial_residuals <- y_scale-colSums(trees_fit[-t,,drop = FALSE])
+      } else {
+        partial_residuals <- y_scale
+      }
 
 
       # Sample a verb
@@ -368,9 +365,9 @@ rspBART <- function(x_train,
                                  data = data)
 
       # Updating the intercept
-      # forest[[t]] <- updateGamma(tree = forest[[t]],
-      #                            curr_part_res = partial_residuals,
-      #                            data = data)
+      forest[[t]] <- updateGamma(tree = forest[[t]],
+                                 curr_part_res = partial_residuals,
+                                 data = data)
 
 
 
@@ -451,14 +448,14 @@ rspBART <- function(x_train,
     all_tau_beta_norm <- all_tau_beta/((max_y-min_y)^2)
     all_tau_gamma_norm <- all_tau_gamma/((max_y-min_y)^2)
 
-      for(post_iter in 1:n_mcmc){
+    for(post_iter in 1:n_mcmc){
 
-        for(tree_number in 1:n_tree){
-            all_trees_fit_norm[[post_iter]][[tree_number]] <- unnormalize_bart(z = all_trees_fit[[post_iter]][[tree_number]],a = min_y,b = max_y)
-        }
-        all_y_hat_norm[post_iter,] <- unnormalize_bart(z = all_y_hat[post_iter,],a = min_y,b = max_y)
-        all_y_hat_test_norm[post_iter, ] <- unnormalize_bart(z = all_y_hat_test[post_iter,],a = min_y,b = max_y)
+      for(tree_number in 1:n_tree){
+        all_trees_fit_norm[[post_iter]][[tree_number]] <- unnormalize_bart(z = all_trees_fit[[post_iter]][[tree_number]],a = min_y,b = max_y)
       }
+      all_y_hat_norm[post_iter,] <- unnormalize_bart(z = all_y_hat[post_iter,],a = min_y,b = max_y)
+      all_y_hat_test_norm[post_iter, ] <- unnormalize_bart(z = all_y_hat_test[post_iter,],a = min_y,b = max_y)
+    }
   } else {
     all_tau_norm <- all_tau
     all_tau_beta_norm <- all_tau_beta
