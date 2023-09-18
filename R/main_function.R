@@ -100,25 +100,25 @@ rspBART <- function(x_train,
 
   # Setting new parameters for the spline
   ndx <- nIknots
-  dx <- 1/ndx
+  dx <- (x_max-x_min)/ndx
   ord_ <- 4
 
   # New_knots
   new_knots <- matrix()
-  new_knots <- matrix(mapply(x_min,x_max, FUN = function(MIN,MAX){seq(from = MIN-ord_*dx, to = MAX+ord_*dx, by = dx)}), ncol = length(dummy_x$continuousVars)) # MIN and MAX are 0 and 1 respectively, because of the scale
+  new_knots <- matrix(mapply(x_min,x_max,dx, FUN = function(MIN,MAX,DX){seq(from = MIN-3*DX, to = MAX+3*DX, by = DX)}), ncol = length(dummy_x$continuousVars)) # MIN and MAX are 0 and 1 respectively, because of the scale
   colnames(new_knots) <- dummy_x$continuousVars
 
   # Following the same setting for the eilers
   D_train <- matrix(NA,
                     nrow = nrow(x_train_scale),
-                    ncol = (nIknots+ord_)*length(dummy_x$continuousVars))
+                    ncol = (nrow(new_knots)-ord_)*length(dummy_x$continuousVars))
 
   D_test <- matrix(NA,
                    nrow = nrow(x_test_scale),
-                   ncol = (nIknots+ord_)*length(dummy_x$continuousVars))
+                   ncol = (nrow(new_knots)-ord_)*length(dummy_x$continuousVars))
 
 
-  basis_size <- (nIknots+ord_) # Change this value to the desired size of each sublist
+  basis_size <- (nrow(new_knots)-ord_) # Change this value to the desired size of each sublist
   D_seq <- 1:ncol(D_train)  # Replace this with the columns of D
 
   # Creating a vector
@@ -130,14 +130,16 @@ rspBART <- function(x_train,
                                        knots = new_knots[,dummy_x$continuousVars[i]],
                                        ord = ord_,
                                        derivs = 0*x_train_scale[,dummy_x$continuousVars[i], drop = FALSE],outer.ok = FALSE)$design
+
     # Returning to MOTR-BART
     D_train[,basis_subindex[[i]]] <- B_train_obj
 
 
-    D_test[,basis_subindex[[i]]] <- splines::spline.des(x = x_test_scale[,dummy_x$continuousVars[i], drop = FALSE],
-                                                        knots = new_knots[,dummy_x$continuousVars[i]],
-                                                        ord = ord_,
-                                                        derivs = 0*x_test_scale[,dummy_x$continuousVars[i], drop = FALSE],outer.ok = TRUE)$design
+    B_test_obj <- splines::spline.des(x = x_test_scale[,dummy_x$continuousVars[i], drop = FALSE],
+                                      knots = new_knots[,dummy_x$continuousVars[i]],
+                                      ord = ord_,
+                                      derivs = 0*x_test_scale[,dummy_x$continuousVars[i], drop = FALSE],outer.ok = TRUE)$design
+    D_test[,basis_subindex[[i]]] <- B_test_obj
   }
 
   if(motrbart_bool){
@@ -539,7 +541,9 @@ rspBART <- function(x_train,
                           all_trees = all_trees),
               data = list(x_train = x_train,
                           y_train = y_train,
-                          x_test = x_test)))
+                          D_train = D_train,
+                          x_test = x_test,
+                          D_test = D_test)))
 
 }
 
