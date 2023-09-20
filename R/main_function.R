@@ -1,8 +1,8 @@
 # source("R/debugging_rspBART.R")
-# rm(list=ls())
+rm(list=ls())
 source("R/other_functions.R")
 source("R/sim_functions.R")
-# source("R/debugging_rspBART.R")
+source("R/debugging_rspBART.R")
 source("R/tree_functions.R")
 # set.seed(42)
 
@@ -28,7 +28,7 @@ rspBART <- function(x_train,
                     numcut = 100L, # Defining the grid of split rules
                     usequants = FALSE,
                     motrbart_bool = FALSE,
-                    use_bs = TRUE
+                    use_bs = FALSE
 ) {
 
   # Verifying if x_train and x_test are matrices
@@ -72,10 +72,10 @@ rspBART <- function(x_train,
 
 
   # Normalising all the columns
-  # for(i in 1:ncol(x_train)){
-  #   x_train_scale[,i] <- normalize_covariates_bart(y = x_train_scale[,i],a = x_min[i], b = x_max[i])
-  #   x_test_scale[,i] <- normalize_covariates_bart(y = x_test_scale[,i],a = x_min[i], b = x_max[i])
-  # }
+  for(i in 1:ncol(x_train)){
+    x_train_scale[,i] <- normalize_covariates_bart(y = x_train_scale[,i],a = x_min[i], b = x_max[i])
+    x_test_scale[,i] <- normalize_covariates_bart(y = x_test_scale[,i],a = x_min[i], b = x_max[i])
+  }
 
 
 
@@ -182,6 +182,17 @@ rspBART <- function(x_train,
     D_test[,basis_subindex[[i]]] <- as.matrix(B_test_obj)
 
   }
+
+  # Visualizing the basis
+
+  # ==== COMMENTTED FUNCTIONS BELOW NOT RUN WITH IF NOT INSIDE THE FUNCTION
+  # selected_var <- 1
+  # D_subset <- D_train[,basis_subindex[[selected_var]]]
+  # plot(NULL,ylim = range(D_subset), xlim = range(x_train_scale[,selected_var]), main = "Use BS: FALSE")
+  # for(i in 1:ncol(D_subset)){
+  #   points(x_train_scale[,selected_var], D_subset[,i], pch = 20, col = ggplot2::alpha(i,0.5))
+  # }
+
 
   if(motrbart_bool){
     D_train <- x_train_scale
@@ -424,6 +435,7 @@ rspBART <- function(x_train,
 
 
     }
+
     # Getting final predcition
     y_hat <- colSums(trees_fit)
     y_hat_test <- colSums(trees_fit_test)
