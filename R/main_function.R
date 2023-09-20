@@ -101,13 +101,15 @@ rspBART <- function(x_train,
 
   # Setting new parameters for the spline
   ndx <- nIknots+1
-  dx <- (x_max-x_min)/ndx
   ord_ <- 4
   degree_ <- 3
+  x_min_sp <- apply(x_train_scale,2,min)
+  x_max_sp <- apply(x_train_scale,2,max)
+  dx <- (x_max_sp-x_min_sp)/ndx
 
   # New_knots
   new_knots <- matrix()
-  new_knots <- matrix(mapply(x_min,x_max,dx, FUN = function(MIN,MAX,DX){seq(from = MIN-(ord_-1)*DX, to = MAX+(ord_-1)*DX, by = DX)}), ncol = length(dummy_x$continuousVars)) # MIN and MAX are 0 and 1 respectively, because of the scale
+  new_knots <- matrix(mapply(x_min_sp,x_max_sp,dx, FUN = function(MIN,MAX,DX){seq(from = MIN-(ord_-1)*DX, to = MAX+(ord_-1)*DX, by = DX)}), ncol = length(dummy_x$continuousVars)) # MIN and MAX are 0 and 1 respectively, because of the scale
   colnames(new_knots) <- dummy_x$continuousVars
 
   # Selecting which one gonna be used bs or splines.des()
@@ -442,11 +444,11 @@ rspBART <- function(x_train,
 
 
     # Seeing the results for the unidimensional cases.
-    # plot(x_train_scale,y_scale)
-    # for(plot_i in 1:n_tree){
-    #   points(x_train_scale,trees_fit[plot_i,],pch=20,col = ggplot2::alpha(plot_i,0.2))
-    # }
-    # points(x_train_scale,y_hat,col = "blue",pch=20)
+    plot(x_train_scale,y_scale)
+    for(plot_i in 1:n_tree){
+      points(x_train_scale,trees_fit[plot_i,],pch=20,col = ggplot2::alpha(plot_i,0.2))
+    }
+    points(x_train_scale,y_hat,col = "blue",pch=20)
 
 
 
@@ -487,6 +489,7 @@ rspBART <- function(x_train,
 
   }
 
+  aux_diag <- diag(tcrossprod(D_train,D_train))
 
   # Normalising elements
   all_tau_norm <- numeric(n_mcmc)

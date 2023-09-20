@@ -1,11 +1,11 @@
 library(mlbench)
 n_ <- 101
 sd_ <- 1
-sim_train <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
-sim_test <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
+# sim_train <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
+# sim_test <- mlbench.friedman1.nointeraction(n = n_,sd = sd_)  |> as.data.frame()
 
-# sim_train <- mlbench.d1.break(n = n_,sd = 0.5)  |> as.data.frame()
-# sim_test <- mlbench.d1.break(n = n_,sd = 0.5) |> as.data.frame()
+sim_train <- mlbench.d1.break(n = n_,sd = 0.5)  |> as.data.frame()
+sim_test <- mlbench.d1.break(n = n_,sd = 0.5) |> as.data.frame()
 x_train <- sim_train |> dplyr::select(dplyr::starts_with("x"))
 x_test <-  sim_test|> dplyr::select(dplyr::starts_with("x"))
 y_train <- sim_train$y
