@@ -489,7 +489,6 @@ rspBART <- function(x_train,
 
   }
 
-  aux_diag <- diag(tcrossprod(D_train,D_train))
 
   # Normalising elements
   all_tau_norm <- numeric(n_mcmc)
