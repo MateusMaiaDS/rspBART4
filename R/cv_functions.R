@@ -2,7 +2,8 @@ all_bart <- function(cv_element,
                      nIknots_,
                      ntree_,
                      use_bs_,
-                     seed_){
+                     seed_,
+                     motr_bart_){
 
   # To replicate the results
   set.seed(seed_)
@@ -20,13 +21,30 @@ all_bart <- function(cv_element,
                     n_mcmc = 2500,node_min_size = 5,
                     n_burn = 0,nIknots = nIknots_,n_tree = ntree_,
                     use_bs = use_bs_,
-                    dif_order = 0,motrbart_bool = FALSE)
+                    dif_order = 0,motrbart_bool = motr_bart_)
 
   bartmod <- dbarts::bart(x.train = x_train,y.train = y_train,x.test = x_test)
-  softbartmod <- SoftBart::softbart(X = x_train,Y = y_train,X_test =  x_test)
 
-  motr_bart_mod <- motr_bart(x = x_train,y = y_train)
-  motrbart_pred <- predict_motr_bart(object = motr_bart_mod,newdata = x_test,type = "all")
+  # Special case when I would have univariate regression
+  if(ncol(x_train)>=2){
+    softbartmod <- SoftBart::softbart(X = x_train,Y = y_train,X_test =  x_test)
+    motr_bart_mod <- motr_bart(x = x_train,y = y_train,ntrees = ntree_)
+    motrbart_pred <- predict_motr_bart(object = motr_bart_mod,newdata = x_test,type = "all")
+  } else {
+    x_train_new <- cbind(x_train,x_train)
+    x_test_new <- cbind(x_test,x_test)
+    colnames(x_test_new) <- colnames(x_train_new) <- paste0("x.",1:2)
+
+    softbartmod <- SoftBart::softbart(X = x_train_new,Y = y_train,X_test =  x_test_new)
+    motr_bart_mod <- motr_bart(x = x_train_new,y = y_train,ntrees = ntree_)
+    # motr_bart_mod$y_hat
+    if(ntree_>1){
+      motrbart_pred <- predict_motr_bart(object = motr_bart_mod,newdata = x_test_new,type = "all")
+    } else {
+      motrbart_pred <- NULL
+    }
+  }
+
 
 
   return(list(spBART = spBART,
@@ -44,7 +62,8 @@ all_bart_lite <- function(cv_element,
                      ntree_,
                      seed_,
                      use_bs_,
-                     j){
+                     j,
+                     motr_bart_){
 
 
   # Doing a warming for the case whichI don't have
@@ -72,7 +91,7 @@ all_bart_lite <- function(cv_element,
                     n_mcmc = 2500,node_min_size = 5,
                     n_burn = 0,nIknots = nIknots_,n_tree = ntree_,
                     use_bs = use_bs_,
-                    dif_order = 0,motrbart_bool = FALSE)
+                    dif_order = 0,motrbart_bool = motr_bart_)
 
 
   n_burn_ <- 500
@@ -161,7 +180,7 @@ all_bart_lite <- function(cv_element,
   rm(softbartmod)
 
   # Doing for MOTR-BART
-  motrbartmod <- motr_bart(x = x_train,y = y_train,ancestors = TRUE)
+  motrbartmod <- motr_bart(x = x_train,y = y_train,ancestors = TRUE,ntrees = 1)
   motrbart_pred <- predict_motr_bart(object = motrbartmod,newdata = x_test,type = "all")
 
   comparison_metrics <- rbind(comparison_metrics,data.frame(metric = "rmse_train",

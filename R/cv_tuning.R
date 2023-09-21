@@ -12,19 +12,23 @@ set.seed(42)
 n_ <- 250
 sd_ <- 1
 n_rep_ <- 10
-nIknots_ <- 4
+nIknots_ <- 10
 ntree_ <- 1
 use_bs_ <- FALSE
 seed_ <- 42
-
+motr_bart_ <- TRUE
 print(paste0("N: ",n_," SD: ", sd_, " nIknots: ", nIknots_, " Ntree: ",ntree_, " Seed: ",seed_))
 cv_ <- vector("list", n_rep_)
 
 # Generating CV_ object
 for( i in 1:n_rep_){
 
-    train <- mlbench.friedman1.nointeraction(n = n_,sd = sd_) %>% as.data.frame()
-    test <- mlbench.friedman1.nointeraction(n = n_,sd = sd_) %>% as.data.frame()
+
+    train <- mlbench.d1.break(n = n_,sd = sd_) %>% as.data.frame()
+    test <- mlbench.d1.break(n = n_,sd = sd_) %>% as.data.frame()
+
+    # train <- mlbench.friedman1.nointeraction(n = n_,sd = sd_) %>% as.data.frame()
+    # test <- mlbench.friedman1.nointeraction(n = n_,sd = sd_) %>% as.data.frame()
 
     # train <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_) %>% as.data.frame()
     # test <- mlbench.friedman1.nointeraction.noise(n = n_,sd = sd_) %>% as.data.frame()
@@ -58,12 +62,12 @@ result <- foreach(i = 1:n_rep_, .packages = c("dbarts","SoftBart","MOTRbart","dp
   if(ntree_<=50) {
     aux <- all_bart(cv_element = cv_[[i]],
                     nIknots_ = nIknots_,ntree_ = ntree_,seed_ = seed_,
-                    use_bs_ = use_bs_)
+                    use_bs_ = use_bs_,motr_bart_ = motr_bart_)
   } else {
     aux <- all_bart_lite(cv_element = cv_[[i]],
                          nIknots_ = nIknots_,ntree_ = ntree_,seed_ = seed_,
                          use_bs_ = use_bs_,
-                         j = i)
+                         j = i,motr_bart_ = motr_bart_)
   }
 
   aux
@@ -76,5 +80,5 @@ stopCluster(cl)
 
 
 # Saving all
-saveRDS(object = result,file = paste0("/localusers/researchers/mmarques/spline_bart_lab/preliminar_results/friedman_n_",n_,
-               "_sd_",sd_,"_nIknots_",nIknots_,"_ntree_",ntree_,"_bs_",use_bs_,".Rds"))
+saveRDS(object = result,file = paste0("/localusers/researchers/mmarques/spline_bart_lab/preliminar_results/rspBART4/sample_tau_gamma_motr_one_oned_n_",n_,
+               "_sd_",sd_,"_nIknots_",nIknots_,"_ntree_",ntree_,"_bs_",use_bs_,"_motr_bart_",motr_bart_,".Rds"))

@@ -363,9 +363,12 @@ rspBART <- function(x_train,
   trees_fit <- matrix(0,nrow = n_tree,ncol = nrow(x_train_scale))
   trees_fit_test <- matrix(0,nrow = n_tree, ncol  = nrow(x_test_scale))
 
-  # Initial prediction
-  for(i in 1:n_tree){
-    trees_fit[i,] <- y_scale/n_tree
+  # For cases where the tree is greater than one;
+  if(n_tree>1){
+    # Initial prediction
+    for(i in 1:n_tree){
+      trees_fit[i,] <- y_scale/n_tree
+    }
   }
 
   # Initialsing the loop
@@ -454,7 +457,7 @@ rspBART <- function(x_train,
 
     # Updating all other parameters
     data$tau_beta <- update_tau_betas(forest = forest,data = data)
-    # data$tau_gamma <- update_tau_gamma(forest = forest,data = data)
+    data$tau_gamma <- update_tau_gamma(forest = forest,data = data)
 
     # Updating delta
     # data$delta <- update_delta(data = data)
