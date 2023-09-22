@@ -1,8 +1,8 @@
 # source("R/debugging_rspBART.R")
-rm(list=ls())
+# rm(list=ls())
 source("R/other_functions.R")
 source("R/sim_functions.R")
-source("inst/debugging_rspBART.R")
+# source("inst/debugging_rspBART.R")
 source("R/tree_functions.R")
 # set.seed(42)
 

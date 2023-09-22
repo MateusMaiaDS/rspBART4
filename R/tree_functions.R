@@ -87,7 +87,7 @@ nodeLogLike <- function(curr_part_res,
 
     # Using the Andrew's approach I would have
     mean_aux <- rep(0,length(curr_part_res_leaf))
-    cov_aux <- diag(x = (data$tau^(-1)),nrow = n_leaf) + (data$tau_gamma^(-1))*matrix(1,nrow = n_leaf,ncol = n_leaf)
+    cov_aux <- diag(x = (data$tau^(-1)),nrow = n_leaf) + matrix((data$tau_gamma^(-1)),nrow = n_leaf,ncol = n_leaf)
     result <- mvnfast::dmvn(X = curr_part_res_leaf,mu = mean_aux,sigma = cov_aux,log = TRUE)
   } else {
     # Getting the p_{tell} i.e: number of betas of the current terminal node
@@ -96,7 +96,7 @@ nodeLogLike <- function(curr_part_res,
 
     # Using the Andrew's approach I would have
     mean_aux <- rep(0,length(curr_part_res_leaf))
-    cov_aux <- diag(x = (data$tau^(-1)),nrow = n_leaf) + (data$tau_gamma^(-1))*matrix(1,nrow = n_leaf,ncol = n_leaf)  + (data$tau_beta^(-1))*tcrossprod(D_leaf)
+    cov_aux <- diag(x = (data$tau^(-1)),nrow = n_leaf) + matrix((data$tau_gamma^(-1)),nrow = n_leaf,ncol = n_leaf)  + (data$tau_beta^(-1))*tcrossprod(D_leaf)
     result <- mvnfast::dmvn(X = curr_part_res_leaf,mu = mean_aux,sigma = cov_aux,log = TRUE)
 
   }
@@ -625,11 +625,12 @@ updateBetas <- function(tree,
     diag_leaf <- diag(nrow = n_leaf)
     diag_basis <- diag(nrow = basis_dim)
 
-    s_beta_inv <- data$tau*diag_leaf-((data$tau^2)/(data$tau_gamma+n_leaf*data$tau))*matrix(1,nrow = n_leaf,ncol = n_leaf)
+    s_beta_inv <- data$tau*diag_leaf-matrix((data$tau^2)/(data$tau_gamma+n_leaf*data$tau),nrow = n_leaf,ncol = n_leaf)
 
+    Dsbinv_ <- crossprod(D_leaf,s_beta_inv)
     #  Calculating the quantities need to the posterior of \beta
-    b_ <- crossprod(D_leaf,s_beta_inv)%*%res_leaf
-    Q_ <- (crossprod(D_leaf,s_beta_inv)%*%D_leaf + data$tau_beta*diag_basis )
+    b_ <- Dsbinv_%*%res_leaf
+    Q_ <- (Dsbinv_%*%D_leaf + data$tau_beta*diag_basis)
 
     # Check this line again if there's any bug on the cholesky decomposition
     tree[[t_nodes_names[i]]]$betas_vec[leaf_basis_subindex] <- c(keefe_mvn_sampler(b = b_,Q = Q_))

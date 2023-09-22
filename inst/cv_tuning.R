@@ -12,8 +12,8 @@ set.seed(42)
 n_ <- 250
 sd_ <- 1
 n_rep_ <- 10
-nIknots_ <- 10
-ntree_ <- 50
+nIknots_ <- 5
+ntree_ <- 10
 use_bs_ <- FALSE
 seed_ <- 42
 motr_bart_ <- FALSE
@@ -59,6 +59,7 @@ result <- foreach(i = 1:n_rep_, .packages = c("dbarts","SoftBart","MOTRbart","dp
   source("/localusers/researchers/mmarques/spline_bart_lab/rspBART4/R/sim_functions.R")
   source("/localusers/researchers/mmarques/spline_bart_lab/rspBART4/R/main_function.R")
   source("/localusers/researchers/mmarques/spline_bart_lab/rspBART4/R/cv_functions.R")
+
   if(ntree_<=50) {
     aux <- all_bart(cv_element = cv_[[i]],
                     nIknots_ = nIknots_,ntree_ = ntree_,seed_ = seed_,
