@@ -35,3 +35,4 @@ nIknots = 5
 dif_order = 0
 motrbart_bool <- TRUE
 use_bs <- FALSE
+plot_preview = TRUE

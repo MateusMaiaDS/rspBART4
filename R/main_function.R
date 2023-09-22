@@ -2,7 +2,7 @@
 rm(list=ls())
 source("R/other_functions.R")
 source("R/sim_functions.R")
-source("R/debugging_rspBART.R")
+source("inst/debugging_rspBART.R")
 source("R/tree_functions.R")
 # set.seed(42)
 
@@ -28,7 +28,8 @@ rspBART <- function(x_train,
                     numcut = 100L, # Defining the grid of split rules
                     usequants = FALSE,
                     motrbart_bool = FALSE,
-                    use_bs = FALSE
+                    use_bs = FALSE,
+                    plot_preview = FALSE
 ) {
 
   # Verifying if x_train and x_test are matrices
@@ -447,17 +448,18 @@ rspBART <- function(x_train,
 
 
     # Seeing the results for the unidimensional cases.
-    plot(x_train_scale,y_scale)
-    for(plot_i in 1:n_tree){
-      points(x_train_scale,trees_fit[plot_i,],pch=20,col = ggplot2::alpha(plot_i,0.2))
+    if(plot_preview){
+        plot(x_train_scale,y_scale)
+        for(plot_i in 1:n_tree){
+          points(x_train_scale,trees_fit[plot_i,],pch=20,col = ggplot2::alpha(plot_i,0.2))
+        }
+        points(x_train_scale,y_hat,col = "blue",pch=20)
     }
-    points(x_train_scale,y_hat,col = "blue",pch=20)
-
 
 
     # Updating all other parameters
-    data$tau_beta <- update_tau_betas(forest = forest,data = data)
-    data$tau_gamma <- update_tau_gamma(forest = forest,data = data)
+    # data$tau_beta <- update_tau_betas(forest = forest,data = data)
+    # data$tau_gamma <- update_tau_gamma(forest = forest,data = data)
 
     # Updating delta
     # data$delta <- update_delta(data = data)

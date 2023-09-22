@@ -3,6 +3,19 @@ D_gen <- function(p, n_dif){
   return(diff(diag(p),diff = n_dif))
 }
 
+# In case where \mathbf{u} ~ MVN(Q^-1 %*% b, Q^-1)
+keefe_mvn_sampler <-  function(b, Q) {
+  p    <- NCOL(Q)
+  Z    <- rnorm(p)
+  if(p == 1) {
+    U  <- sqrt(Q)
+    drop((b/U + Z)/U)
+  } else     {
+    U  <- chol(Q)
+    backsolve(U, backsolve(U, b, transpose=TRUE, k=p) + Z, k=p)
+  }
+}
+
 # Normalize BART function (Same way ONLY THE COVARIATE NOW)
 normalize_covariates_bart <- function(y, a = NULL, b = NULL) {
 

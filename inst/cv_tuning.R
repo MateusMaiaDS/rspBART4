@@ -13,10 +13,10 @@ n_ <- 250
 sd_ <- 1
 n_rep_ <- 10
 nIknots_ <- 10
-ntree_ <- 1
+ntree_ <- 50
 use_bs_ <- FALSE
 seed_ <- 42
-motr_bart_ <- TRUE
+motr_bart_ <- FALSE
 print(paste0("N: ",n_," SD: ", sd_, " nIknots: ", nIknots_, " Ntree: ",ntree_, " Seed: ",seed_))
 cv_ <- vector("list", n_rep_)
 
@@ -80,5 +80,5 @@ stopCluster(cl)
 
 
 # Saving all
-saveRDS(object = result,file = paste0("/localusers/researchers/mmarques/spline_bart_lab/preliminar_results/rspBART4/sample_tau_gamma_motr_one_oned_n_",n_,
+saveRDS(object = result,file = paste0("/localusers/researchers/mmarques/spline_bart_lab/preliminar_results/rspBART4/oned_n_",n_,
                "_sd_",sd_,"_nIknots_",nIknots_,"_ntree_",ntree_,"_bs_",use_bs_,"_motr_bart_",motr_bart_,".Rds"))
