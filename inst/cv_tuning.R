@@ -12,8 +12,8 @@ set.seed(42)
 n_ <- 250
 sd_ <- 1
 n_rep_ <- 10
-nIknots_ <- 5
-ntree_ <- 10
+nIknots_ <- 10
+ntree_ <- 200
 use_bs_ <- FALSE
 seed_ <- 42
 motr_bart_ <- FALSE
