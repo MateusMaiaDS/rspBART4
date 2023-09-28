@@ -642,10 +642,11 @@ sp_updateBetas <- function(tree,
 
     #  Calculating the quantities need to the posterior of \beta
     b_ <- crossprod(D_leaf,res_leaf)
-    Q_ <- crossprod(D_leaf) + diag(data$tau_beta/data$tau, nrow = NCOL(D_leaf))
+    Q_ <- (crossprod(D_leaf) + diag(data$tau_beta/data$tau, nrow = NCOL(D_leaf)))
 
     # Check this line again if there's any bug on the cholesky decomposition
-    tree[[t_nodes_names[i]]]$betas_vec[leaf_basis_subindex] <- c(keefe_mvn_sampler(b = b_,Q = Q_))
+    # tree[[t_nodes_names[i]]]$betas_vec[leaf_basis_subindex] <- c(keefe_mvn_sampler(b = b_,Q = Q_))
+    tree[[t_nodes_names[i]]]$betas_vec[leaf_basis_subindex] <- mvnfast::rmvn(n = 1,mu = solve(Q_,b_),sigma = (data$tau^(-1))*solve(Q_))
   }
 
   # Returning the tree

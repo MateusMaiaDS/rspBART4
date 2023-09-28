@@ -1,8 +1,8 @@
 # source("R/debugging_rspBART.R")
-# rm(list=ls())
+rm(list=ls())
 source("R/other_functions.R")
 source("R/sim_functions.R")
-# source("inst/debugging_rspBART.R")
+source("inst/debugging_rspBART.R")
 source("R/tree_functions.R")
 source("R/tree_functions_no_intercept.R")
 # set.seed(42)
@@ -239,7 +239,7 @@ rspBART <- function(x_train,
       tau_mu <- 4*n_tree*(kappa^2)*(1+m_tilda)
     } else {
       tau_gamma <- 1e8
-      tau_mu <- 4*n_tree*(kappa^2)*m_tilda
+      tau_mu <- 4*n_tree*(kappa^2)
     }
 
 
@@ -250,6 +250,7 @@ rspBART <- function(x_train,
 
     # New parameter update
     m_tilda <- mean(diag(tcrossprod(D_train)))
+
     if(intercept){
       tau_gamma <- (4*n_tree*(kappa^2)*(1+m_tilda))/((max_y-min_y)^2)
       tau_mu <- (4*n_tree*(kappa^2)*(1+m_tilda))/((max_y-min_y)^2)
@@ -469,8 +470,8 @@ rspBART <- function(x_train,
           tree_predictions <- getPredictions(tree = forest[[t]],
                                              data = data)
       } else {
-        tree_predictions <- sp_getPredictions(tree = forest[[t]],
-                                           data = data)
+          tree_predictions <- sp_getPredictions(tree = forest[[t]],
+                                             data = data)
       }
 
       trees_fit[t,] <- rowSums(tree_predictions$y_train_hat)
