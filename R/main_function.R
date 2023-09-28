@@ -29,7 +29,8 @@ rspBART <- function(x_train,
                     usequants = FALSE,
                     motrbart_bool = FALSE,
                     use_bs = FALSE,
-                    plot_preview = FALSE
+                    plot_preview = FALSE,
+                    intercept = TRUE
 ) {
 
   # Verifying if x_train and x_test are matrices
@@ -226,12 +227,36 @@ rspBART <- function(x_train,
   # Scaling "y"
   if(scale_bool){
     y_scale <- normalize_bart(y = y_train,a = min_y,b = max_y)
-    tau_gamma <- tau_mu <- (4*n_tree*(kappa^2))
+
+    # tau_gamma <- tau_mu <- (4*n_tree*(kappa^2))
+
+    # New update
+    m_tilda <- mean(diag(tcrossprod(D_train)))
+
+    if(intercept){
+      tau_gamma <- 4*n_tree*(kappa^2)*(1+m_tilda)
+      tau_mu <- 4*n_tree*(kappa^2)*(1+m_tilda)
+    } else {
+      tau_gamma <- 1e8
+      tau_mu <- 4*n_tree*(kappa^2)*m_tilda
+    }
+
 
   } else {
     y_scale <- y_train
 
-    tau_gamma <- tau_mu <- (4*n_tree*(kappa^2))/((max_y-min_y)^2)
+    # tau_gamma <- tau_mu <- (4*n_tree*(kappa^2))/((max_y-min_y)^2)
+
+    # New parameter update
+    m_tilda <- mean(diag(tcrossprod(D_train)))
+    if(intercept){
+      tau_gamma <- (4*n_tree*(kappa^2)*(1+m_tilda))/((max_y-min_y)^2)
+      tau_mu <- (4*n_tree*(kappa^2)*(1+m_tilda))/((max_y-min_y)^2)
+    } else {
+      tau_gamma <- 1e8
+      tau_mu <- (4*n_tree*(kappa^2))/((max_y-min_y)^2)
+    }
+
   }
 
 
@@ -346,7 +371,8 @@ rspBART <- function(x_train,
                tau_beta = tau_beta,
                # delta = delta,
                # P = P,
-               node_min_size = node_min_size)
+               node_min_size = node_min_size,
+               intercept_bool = intercept)
 
   #   So to simply interepret the element all_var_splits each element correspond
   #to each variable. Afterwards each element corresponds to a cutpoint; Finally,
@@ -420,20 +446,31 @@ rspBART <- function(x_train,
       # cat("Forest verb:", verb,"\n")
 
       # Updating the betas
-      forest[[t]] <- updateBetas(tree = forest[[t]],
-                                 curr_part_res = partial_residuals,
-                                 data = data)
-
+      if(data$intercept_bool){
+        forest[[t]] <- updateBetas(tree = forest[[t]],
+                                   curr_part_res = partial_residuals,
+                                   data = data)
+      } else {
+        forest[[t]] <- sp_updateBetas(tree = forest[[t]],
+                                   curr_part_res = partial_residuals,
+                                   data = data)
+      }
       # Updating the intercept
-      forest[[t]] <- updateGamma(tree = forest[[t]],
-                                 curr_part_res = partial_residuals,
-                                 data = data)
-
+      if(data$intercept_bool){
+        forest[[t]] <- updateGamma(tree = forest[[t]],
+                                   curr_part_res = partial_residuals,
+                                   data = data)
+      }
 
 
       # Getting the predictions
-      tree_predictions <- getPredictions(tree = forest[[t]],
-                                         data = data)
+      if(data$intercept_bool){
+          tree_predictions <- getPredictions(tree = forest[[t]],
+                                             data = data)
+      } else {
+        tree_predictions <- sp_getPredictions(tree = forest[[t]],
+                                           data = data)
+      }
 
       trees_fit[t,] <- rowSums(tree_predictions$y_train_hat)
       trees_fit_test[t,] <- rowSums(tree_predictions$y_hat_test)
