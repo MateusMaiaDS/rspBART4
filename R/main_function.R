@@ -4,6 +4,7 @@ source("R/other_functions.R")
 source("R/sim_functions.R")
 # source("inst/debugging_rspBART.R")
 source("R/tree_functions.R")
+source("R/tree_functions_no_intercept.R")
 # set.seed(42)
 
 # Creating the main function from the rspBART
