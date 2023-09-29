@@ -191,12 +191,12 @@ rspBART <- function(x_train,
   # Visualizing the basis
 
   # ==== COMMENTTED FUNCTIONS BELOW NOT RUN WITH IF NOT INSIDE THE FUNCTION
-  # selected_var <- 1
-  # D_subset <- D_train[,basis_subindex[[selected_var]]]
-  # plot(NULL,ylim = range(D_subset), xlim = range(x_train_scale[,selected_var]), main = "Use BS: FALSE")
-  # for(i in 1:ncol(D_subset)){
-  #   points(x_train_scale[,selected_var], D_subset[,i], pch = 20, col = ggplot2::alpha(i,0.5))
-  # }
+  selected_var <- 1
+  D_subset <- D_train[,basis_subindex[[selected_var]]]
+  plot(NULL,ylim = range(D_subset), xlim = range(x_train_scale[,selected_var]), main = "Use BS: FALSE")
+  for(i in 1:ncol(D_subset)){
+    points(x_train_scale[,selected_var], D_subset[,i], pch = 20, col = ggplot2::alpha(i,0.5))
+  }
 
 
   if(motrbart_bool){
@@ -239,7 +239,7 @@ rspBART <- function(x_train,
       tau_mu <- 4*n_tree*(kappa^2)*(1+m_tilda)
     } else {
       tau_gamma <- 1e8
-      tau_mu <- 4*n_tree*(kappa^2)
+      tau_mu <- 4*n_tree*(kappa^2)*(1+m_tilda)
     }
 
 

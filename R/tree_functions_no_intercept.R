@@ -382,7 +382,7 @@ prune <- function(tree,
 
       p_right_loglike <-  nodeLogLike(curr_part_res = curr_part_res,
                                       index_node = children_right_index,
-                                      ancestors = unique(children_right_index),
+                                      ancestors = unique(children_right_ancestors),
                                       data = data)
   } else {
     p_loglike <- sp_nodeLogLike(curr_part_res = curr_part_res,
@@ -398,7 +398,7 @@ prune <- function(tree,
 
     p_right_loglike <-  sp_nodeLogLike(curr_part_res = curr_part_res,
                                     index_node = children_right_index,
-                                    ancestors = unique(children_right_index),
+                                    ancestors = unique(children_right_ancestors),
                                     data = data)
   }
   # Calculating the prior
