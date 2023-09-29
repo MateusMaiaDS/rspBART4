@@ -364,7 +364,7 @@ nodeLogLike <- function(curr_part_res,
 #
 #   p_right_loglike <-  nodeLogLike(curr_part_res = curr_part_res,
 #                                 index_node = children_right_index,
-#                                 ancestors = unique(children_right_index),
+#                                 ancestors = unique(children_right_ancestors),
 #                                 data = data)
 #
 #   # Calculating the prior
